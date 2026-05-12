@@ -1,5 +1,6 @@
+const User = require('./auth.model')
+const bcrypt = require("bcryptjs");
 
-const { default: bcrypt } = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 
@@ -9,7 +10,7 @@ exports.registerUser = async (req,res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const user = await UserActivation.create({firstName, lastName, email, password:hashedPassword});
+        const user = await User.create({firstName, lastName, email, password:hashedPassword});
 
         res.json({
             message: "User registered successfully",
@@ -28,15 +29,15 @@ exports.loginUser = async (req,res) => {
     try{
     const {email,password} = req.body;
 
-    const user = await user.findOne({email});
+    const foundUser = await User.findOne({email});
      
-    if(!user){
+    if(!foundUser){
         return res.json({
             message: "user not found",
         });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, foundUser.password);
     
     if(!isMatch){
         return res.json({
@@ -46,8 +47,8 @@ exports.loginUser = async (req,res) => {
 
     const token = jwt.sign(
         {
-            id: user._id,
-            email: user.email,
+            id: foundUser._id,
+            email: foundUser.email,
         },
         process.env.JWT_SECRET,
         {
