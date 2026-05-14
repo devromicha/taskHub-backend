@@ -1,5 +1,11 @@
 const express = require("express");
 const { registerUser, loginUser } = require("./auth.controller");
+const verifyToken = require("../middleware/auth.middleware");
+
+
+
+
+
 
 const router = express.Router();
 
@@ -56,6 +62,26 @@ router.post("/register", registerUser);
  *         description: Login successful
  */
 router.post("/login", loginUser);
+
+/**
+ * @swagger
+ * /api/auth/profile:
+ *   get:
+ *     summary: Get protected user profile
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Protected profile data
+ */
+router.get('/profile',verifyToken, (req,res) => {
+    res.json({
+        message: "Protected profile data",
+          user: req.user,
+    })
+} )
 
 
 module.exports = router;
