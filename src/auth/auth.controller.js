@@ -45,7 +45,7 @@ exports.loginUser = async (req,res) => {
         });
     }
 
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
         {
             id: foundUser._id,
             email: foundUser.email,
@@ -55,9 +55,22 @@ exports.loginUser = async (req,res) => {
             expiresIn: '1h',
         }
     );
+    const refreshToken = jwt.sign(
+        {
+            id: foundUser._id,
+            email: foundUser.email,
+        },
+        process.env.REFRESH_SECRET,
+        {
+            expiresIn: '7d',
+        }
+    );
+    
+
 
     res.json({
-        message: "Login Sucessfull"
+        message: "Login Sucessfull",
+        accessToken,refreshToken
     })
 
     } catch(error) {
